@@ -27,3 +27,4 @@ The repository comprises a number of files and folders.
   
 6. '/figures'
   - three pngs (e.g., 'csl-header-snip.png') that are used in the 'word-to-latex' presentation
+
