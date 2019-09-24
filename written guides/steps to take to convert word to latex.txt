@@ -1,0 +1,30 @@
+steps to take in converting word to latex
+
+Citation Steps
+-convert word citations to latex format
+-review word document citations to ensure that prefix information always before first citation
+
+Figures Steps
+-ensure figure captions are not embedded within text boxes
+-convert figure cross references
+
+-export word document to latex with pandoc
+
+-within latex document
+---formatting changes
+-search for and replace all entries of 
+	-"textbackslash " with ""
+	-\emph with \textit
+	-{[} with [
+	-{]} with ]
+	-\{ with {
+	-\} with }
+
+---citation changes
+-search for all entries of textcite
+	-when encounter textcite, remove preceding author
+
+---figure changes
+-update includegraphics code to input figure
+
+---table changes

@@ -1,0 +1,333 @@
+Sub MarkdownLatex()
+'the following dim lines create variables of (as) the given types
+Dim doc As Document
+Dim fld As Field
+Dim rng As Range
+Dim mycount As Integer
+Dim index As Integer
+  
+'set the doc variable to the active document
+Set doc = ActiveDocument
+  'show field codes
+ActiveWindow.View.ShowFieldCodes = Not ActiveWindow.View.ShowFieldCodes
+
+'for each field type object (fld) given by the fields in doc.Fields
+'do the following
+For Each fld In doc.Fields
+  'first extract field code text
+    fieldText = fld.Code.Text
+    'count the number of times "author" with quotes is observed in field text
+    'this represents the number of unique citations in the zotero entry
+    mycount = UBound(Split(fieldText, """author"""))
+    
+    'Code to modify citations with suppressed author.
+        'the InStr code finds the index of suppress-author":true
+        'if this index exists, it's value will be greater than 1
+    If InStr(fieldText, "suppress-author"":true") > 1 Then
+        'if suppress-author index greater than 1, do the following
+        'select the fld
+        fld.Select
+        'copy the text over the range of that selection
+        Selection.Range.Copy
+        'paste special that copied text, which just paste the citation info
+        'not the field code info
+        Selection.PasteSpecial Link:=False, _
+        DataType:=wdPasteText, _
+        Placement:=wdInLine, _
+        DisplayAsIcon:=False
+      
+      'now insert a '-' before the citation
+      'move selection backwards until the first opening bracket
+        Selection.MoveStartUntil Cset:="[", Count:=wdBackward
+      'shift the selection right by 1 characters so that cursor starts just after the bracket
+        Selection.MoveRight Unit:=wdCharacter, Count:=1, Extend:=wdMove
+      'now insert the -
+        Selection.InsertAfter "-"
+        
+        
+'Code to modify citations with prefixes
+'Next, if suppress author index did not exist, check whether citation
+'has prefix
+        ElseIf InStr(fieldText, "prefix") > 1 Then
+      'select field, copy, and then paste special, as before
+        fld.Select
+        Selection.Range.Copy
+        Selection.PasteSpecial Link:=False, _
+        DataType:=wdPasteText, _
+        Placement:=wdInLine, _
+        DisplayAsIcon:=False
+        'move selection backwards until [
+        Selection.MoveStartUntil Cset:="[", Count:=wdBackward
+      
+        'next, move selection to the right by 1 characters to exclude the @
+        Selection.MoveStart Unit:=wdCharacter, Count:=1
+        
+        'set the rng variable to be the range of the current selection
+        Set rng = Selection.Range
+      
+      'for each of the citations (1 to length of mycount)
+      'walk back the right boundary of the current selection to the first space
+      '(i.e., moving the end from right to left until space, indicated by Chr(32))
+      'then move end further back by 1 character to get rid of space separating
+      'prefix comma and rest of citation
+        For index = 1 To mycount
+            rng.MoveEndUntil Chr(32), Count:=wdBackward
+            rng.MoveEnd Unit:=wdCharacter, Count:=-1
+        Next index
+      'note that we do the for loop b/c we assume that each citation block
+      'contains only one prefix entry, and for citation blocks with multiple
+      'unique citations, want to move that specific prefix
+      
+      'insert latex prefix and suffix code (brackets) before and after
+      'selected range (rng)
+        'rng.InsertAfter ","
+       'rng.InsertBefore "["
+      
+      'select rng again, then cut it, and paste it 1 character to the left of where it was
+        rng.Select
+        With Selection
+            .Cut
+            .MoveLeft Unit:=wdCharacter, Count:=1, Extend:=wdMove
+            .Paste
+        End With
+      
+      'if neither prefix nor suppress author true, do nothing except hide field codes again
+    Else
+        ActiveWindow.View.ShowFieldCodes = False
+        
+        'finally, end the if statement
+    End If
+      'go to next field entry for for loop
+    Next
+    
+'hide remaining field codes
+Application.ActiveWindow.View.ShowFieldCodes = False
+
+'end vba program
+End Sub
+
+
+Sub ZoteroLatex()
+'the following dim lines create variables of (as) the given types
+Dim doc As Document
+Dim fld As Field
+Dim rng As Range
+Dim mycount As Integer
+Dim index As Integer
+  
+'set the doc variable to the active document
+Set doc = ActiveDocument
+  'show field codes
+ActiveWindow.View.ShowFieldCodes = Not ActiveWindow.View.ShowFieldCodes
+
+'for each field type object (fld) given by the fields in doc.Fields
+'do the following
+For Each fld In doc.Fields
+  'first extract field code text
+    fieldText = fld.Code.Text
+    'count the number of times "author" with quotes is observed in field text
+    'this represents the number of unique citations in the zotero entry
+    mycount = UBound(Split(fieldText, """author"""))
+    
+    'Code to modify citations with suppressed author.
+        'the InStr code finds the index of suppress-author":true
+        'if this index exists, it's value will be greater than 1
+    If InStr(fieldText, "suppress-author"":true") > 1 Then
+        'if suppress-author index greater than 1, do the following
+        'select the fld
+        fld.Select
+        'copy the text over the range of that selection
+        Selection.Range.Copy
+        'paste special that copied text, which just paste the citation info
+        'not the field code info
+        Selection.PasteSpecial Link:=False, _
+        DataType:=wdPasteText, _
+        Placement:=wdInLine, _
+        DisplayAsIcon:=False
+      
+      'now select the pasted text. Extend selection backwards until
+      'the first opening curly bracket
+        Selection.MoveStartUntil Cset:="{", Count:=wdBackward
+      'shift the selection left 10 characters so that cursor starts at "autocite"
+        Selection.MoveLeft Unit:=wdCharacter, Count:=10, Extend:=wdMove
+      'select text from "autocite" to first opening curly bracket
+        Selection.MoveEndUntil Cset:="}", Count:=wdForward
+      
+      'with this current selection, find and replace autocite with textcite
+      'move forward in search, stop search when find, and only replace once
+        With Selection.Find
+            .Text = "autocite"
+            .Replacement.Text = "textcite"
+            .Forward = True
+            .Wrap = wdFindStop
+        End With
+        Selection.Find.Execute Replace:=wdReplaceAll
+        
+     
+'Code to modify citations with prefixes
+'Next, if suppress author index did not exist, check whether citation
+'has prefix
+        ElseIf InStr(fieldText, "prefix") > 1 Then
+      'select field, copy, and then paste special, as before
+        fld.Select
+        Selection.Range.Copy
+        Selection.PasteSpecial Link:=False, _
+        DataType:=wdPasteText, _
+        Placement:=wdInLine, _
+        DisplayAsIcon:=False
+        'move selection backwards until { or ;
+        Selection.MoveStartUntil Cset:="{", Count:=wdBackward
+      
+        'set the rng variable to be the range of the current selection
+        Set rng = Selection.Range
+      
+      'for each of the citations (1 to length of mycount)
+      'walk back the right boundary of the current selection to the first space
+      '(i.e., moving the end from right to left until space, indicated by Chr(32))
+      'then move end further back by 1 character to get rid of space separating
+      'prefix comma and rest of citation
+        For index = 1 To mycount
+            rng.MoveEndUntil Chr(32), Count:=wdBackward
+            rng.MoveEnd Unit:=wdCharacter, Count:=-1
+        Next index
+      'note that we do the for loop b/c we assume that each citation block
+      'contains only one prefix entry, and for citation blocks with multiple
+      'unique citations, want to move that specific prefix
+      
+      'insert latex prefix and suffix code (brackets) before and after
+      'selected range (rng)
+        rng.InsertAfter "][]"
+        rng.InsertBefore "["
+      
+      'select rng again, then cut it, and paste it 1 character to the left of where it was
+        rng.Select
+        With Selection
+            .Cut
+            .MoveLeft Unit:=wdCharacter, Count:=1, Extend:=wdMove
+            .Paste
+        End With
+      
+      'if neither prefix nor suppress author true, do nothing except hide field codes again
+    Else
+        ActiveWindow.View.ShowFieldCodes = False
+        
+        'finally, end the if statement
+    End If
+      'go to next field entry for for loop
+    Next
+    
+'hide remaining field codes
+Application.ActiveWindow.View.ShowFieldCodes = False
+
+'end vba program
+End Sub
+
+Sub ToggleFieldCodes()
+
+Dim doc As Document
+Set doc = ActiveDocument
+
+ActiveWindow.View.ShowFieldCodes = Not ActiveWindow.View.ShowFieldCodes
+
+End Sub
+
+
+
+
+Sub LatexFiguresRefs()
+'the following dim lines create variables of (as) the given types
+Dim doc As Document
+Dim fld As Field
+Dim strref As String
+Dim strlabel As String
+Dim strinput As String
+Dim strCombo As String
+Dim strCombo2 As String
+
+'set the doc variable to the active document
+Set doc = ActiveDocument
+  'show field codes
+ActiveWindow.View.ShowFieldCodes = Not ActiveWindow.View.ShowFieldCodes
+
+
+'define strref to be "/ref{fig:"
+strref = "\autoref{fig:"
+
+'define strlabel
+strlabel = "\label{fig:"
+
+'get user input for figure label
+strinput = InputBox("Enter label prefix to be used for figures (e.g., Ch1-", "Label Text")
+
+'combine strref and input
+strCombo = strref & strinput
+
+'combine strlabel and input
+strCombo2 = strlabel & strinput
+
+'next, for each field in document, add latex reference code
+For Each fld In doc.Fields
+  'first extract field code text
+    fieldText = fld.Code.Text
+    
+'Code to modify cross references
+    If InStr(fieldText, "REF ") > 0 Then
+      'select field, copy, and then paste special
+        fld.Select
+        
+       'copy field
+        Selection.Range.Copy
+        
+        'Paste special
+        Selection.PasteSpecial Link:=False, _
+        DataType:=wdPasteText, _
+        Placement:=wdInLine, _
+        DisplayAsIcon:=False
+        
+        'now, modify inserted text so as to contain latex reference code
+        'first insert } at end
+        Selection.TypeText Text:="}"
+        
+        'next, move cursor to beginning
+        'next, move cursor to beginning of pasted object,
+        Selection.MoveLeft Unit:=wdWord, Count:=3, Extend:=wdMove
+        
+        'finally, insert strCombo
+        Selection.TypeText Text:=strCombo
+      
+       End If
+       
+    If InStr(fieldText, "SEQ Figure") > 0 Then
+    'select field, copy, and then paste special
+        fld.Select
+        
+        'copy field
+        Selection.Range.Copy
+        
+        'paste special
+        Selection.PasteSpecial Link:=False, _
+        DataType:=wdPasteText, _
+        Placement:=wdInLine, _
+        DisplayAsIcon:=False
+        
+        'now, modify inserted text so as to contain latex label code
+        'first insert } at end
+        Selection.TypeText Text:="}"
+        
+        'next, move cursor to beginning of "figure"
+        Selection.MoveLeft Unit:=wdWord, Count:=3, Extend:=wdMove
+        
+        'finally, insert strCombo2
+        Selection.TypeText Text:=strCombo2
+    
+        End If
+                
+      'go to next field entry for for loop
+    Next
+
+Application.ActiveWindow.View.ShowFieldCodes = False
+
+    'end vba program
+End Sub
+
+
