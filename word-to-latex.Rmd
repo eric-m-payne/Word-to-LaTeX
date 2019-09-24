@@ -279,7 +279,7 @@ _Dealing with issue A, plain text citations_
 
 
 ### Citations with Zotero
-To do so with Zotero, use [Better Bibtex](https://retorque.re/zotero-better-bibtex/), a super cool tool
+To do so with Zotero (version 5), use [Better Bibtex](https://retorque.re/zotero-better-bibtex/), a super cool tool
 
 --
 
@@ -302,6 +302,9 @@ To do so with Zotero, use [Better Bibtex](https://retorque.re/zotero-better-bibt
   - go to Preferences > Advanced > Config Editor
     - Accept the risk
     - Change setting citeprocNoteCitekey to True, which allows the citation keys to be saved within the notes section Zotero references
+    
+???
+There are plans in the future to make it so that Zotero can natively use citation keys in a bibliographic style, but such functionality is currently only implemented through Better Bibtex.
 
 ---
 
