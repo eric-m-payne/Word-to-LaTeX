@@ -7,6 +7,7 @@ The repository comprises a number of files and folders.
 1. The base directory
     - 'word-to-latex.Rmd' -- an R markdown file that, when knit to html, produces a presentation. Produced with the R package 'xaringan.'
     - 'word-to-latex.html' -- the html presentation of above
+      - download and view in your browser (best support in Chrome)
     - 'sfah.css' -- a css style that is used within the Rmd presentation file above.
   
   
