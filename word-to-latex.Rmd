@@ -37,7 +37,7 @@ class: center, middle
 
 2019-09-26, .small[updated `r Sys.Date()`]
 
-[github.com/eric-m-payne/Word-to-LaTeX](github.com/eric-m-payne/Word-to-LaTeX)
+[github.com/eric-m-payne/Word-to-LaTeX](https://github.com/eric-m-payne/Word-to-LaTeX)
 
 
 ```{r remedy001, echo = F}
