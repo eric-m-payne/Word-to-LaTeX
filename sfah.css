@@ -1,9 +1,13 @@
-﻿:root {
+:root {
   --color-salt: #61acf0; /* blue */
   --color-fat: #f0a561; /* orange */
   --color-acid: #cbd20a; /* lime */
   --color-heat: #e74a2f; /* red */
   --color-black: #1a1917; /* black */
+}
+
+.small {
+  font-size: 70% 
 }
 
 .large { 
